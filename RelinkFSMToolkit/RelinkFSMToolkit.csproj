@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>disable</Nullable>
+    <UseWPF>true</UseWPF>
+	<EnableDefaultApplicationDefinition>false</EnableDefaultApplicationDefinition>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Themes\Brushes.xaml" />
+    <None Remove="Themes\Controls.xaml" />
+    <None Remove="Themes\Dark.xaml" />
+    <None Remove="Themes\Generic.xaml" />
+    <None Remove="Themes\Light.xaml" />
+    <None Remove="views\PropertyGrid.xaml" />
+    <None Remove="Views\ToolboxView.xaml" />
+    <None Remove="Views\TopMenuView.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+    <PackageReference Include="Dirkster.AvalonDock" Version="4.72.1" />
+    <PackageReference Include="Dirkster.AvalonDock.Themes.VS2013" Version="4.72.1" />
+    <PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="5.0.115" />
+    <PackageReference Include="gong-wpf-dragdrop" Version="3.2.1" />
+    <PackageReference Include="HandyControl" Version="3.5.1" />
+    <PackageReference Include="MahApps.Metro.IconPacks" Version="4.11.0" />
+    <PackageReference Include="MessagePack" Version="2.5.140" />
+    <PackageReference Include="Microsoft.Msagl" Version="1.1.6" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.77" />
+    <PackageReference Include="Nodify" Version="5.2.0" />
+    <PackageReference Include="Wpf.Extensions.Hosting" Version="1.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GBFRDataTools\GBFRDataTools.Entities\GBFRDataTools.Entities.csproj" />
+    <ProjectReference Include="..\GBFRDataTools\GBFRDataTools.FSM\GBFRDataTools.FSM.csproj" />
+  </ItemGroup>
+</Project>

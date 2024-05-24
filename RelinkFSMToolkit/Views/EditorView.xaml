@@ -1,0 +1,162 @@
+﻿<UserControl x:Class="RelinkFSMToolkit.Views.EditorView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:RelinkFSMToolkit"
+        xmlns:views="clr-namespace:RelinkFSMToolkit.Views"
+        xmlns:viewmodels="clr-namespace:RelinkFSMToolkit.ViewModels"
+        xmlns:nodify="https://miroiu.github.io/nodify"
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        xmlns:dd="urn:gong-wpf-dragdrop"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        mc:Ignorable="d" 
+        d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <local:ConnectorOffsetConverter x:Key="ConnectorOffsetConverter" />
+        <GeometryDrawing x:Key="SmallGridGeometry"
+                        Geometry="M0,0 L0,1 0.03,1 0.03,0.03 1,0.03 1,0 Z"
+                        Brush="{StaticResource NodifyEditor.SelectionRectangleBackgroundBrush}" />
+
+        <GeometryDrawing x:Key="LargeGridGeometry"
+                        Geometry="M0,0 L0,1 0.015,1 0.015,0.015 1,0.015 1,0 Z"
+                        Brush="{StaticResource NodifyEditor.SelectionRectangleBackgroundBrush}" />
+
+        <DrawingBrush x:Key="SmallGridLinesDrawingBrush"
+                    TileMode="Tile"
+                    ViewportUnits="Absolute"
+                    Viewport="0 0 20 20"
+                    Transform="{Binding ViewportTransform, ElementName=Editor}"
+                    Drawing="{StaticResource SmallGridGeometry}" />
+
+        <DrawingBrush x:Key="LargeGridLinesDrawingBrush"
+                    TileMode="Tile"
+                    ViewportUnits="Absolute"
+                    Opacity="0.5"
+                    Viewport="0 0 100 100"
+                    Transform="{Binding ViewportTransform, ElementName=Editor}"
+                    Drawing="{StaticResource LargeGridGeometry}" />
+    </UserControl.Resources>
+    <d:UserControl.DataContext>
+        <viewmodels:EditorViewModel/>
+    </d:UserControl.DataContext>
+
+    <!-- The actual node editor. -->
+    <Grid Background="{StaticResource NodifyEditor.BackgroundBrush}">
+        <nodify:NodifyEditor x:Name="Editor"
+                 ItemsSource="{Binding Nodes}" 
+                 Connections="{Binding Transitions}"
+                 Background="{StaticResource SmallGridLinesDrawingBrush}"
+                 SelectedItem="{Binding SelectedNode}">
+            <nodify:NodifyEditor.ItemContainerStyle>
+                <Style TargetType="{x:Type nodify:ItemContainer}" BasedOn="{StaticResource {x:Type nodify:ItemContainer}}">
+                    <Setter Property="Location" Value="{Binding Location}" />
+                    <Setter Property="ActualSize" Value="{Binding Size, Mode=OneWayToSource}" />
+                </Style>
+            </nodify:NodifyEditor.ItemContainerStyle>
+
+            <nodify:NodifyEditor.ConnectionTemplate>
+                <DataTemplate DataType="{x:Type viewmodels:TransitionViewModel}">
+                    <nodify:LineConnection Source="{Binding Source.Anchor}" 
+                                   Target="{Binding Target.Anchor}" 
+                                   SourceOffset="{Binding Source.Size, Converter={StaticResource ConnectorOffsetConverter}, ConverterParameter=20}"
+                                   TargetOffset="{Binding Target.Size, Converter={StaticResource ConnectorOffsetConverter}, ConverterParameter=20}"
+                                   StrokeDashArray="{Binding StrokeDashArray}"
+                                   ArrowSize="20,20"
+                                   Spacing="0" 
+                                   MouseDown="LineConnection_MouseDown"
+                                   Text="{Binding Title}" 
+                                   FontWeight="Bold"
+                                   SourceOffsetMode="Edge"
+                                   TargetOffsetMode="Edge">
+                    </nodify:LineConnection>
+                </DataTemplate>
+            </nodify:NodifyEditor.ConnectionTemplate>
+
+            <!-- Set how every node should be displayed -->
+            <nodify:NodifyEditor.ItemTemplate>
+                <DataTemplate DataType="{x:Type viewmodels:NodeViewModel}">
+                    <nodify:StateNode x:Name="Node" 
+                              IsConnected="True"
+                              BorderBrush="{Binding BorderBrush}"
+                              Content="{Binding}"
+                              CornerRadius="{Binding CornerRadius}"
+                              Anchor="{Binding Anchor, Mode=OneWayToSource}"
+                              AllowDrop="True">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Drop">
+                                <i:InvokeCommandAction Command="{Binding DropCommand}" PassEventArgsToCommand="True" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+
+                        <!-- For execution components -->
+                        <nodify:StateNode.ContentTemplate>
+                            <DataTemplate DataType="{x:Type viewmodels:NodeViewModel}">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <iconPacks:PackIconVaadinIcons Kind="SquareShadow" VerticalAlignment="Center"/>
+                                        <local:EditableTextBlock Text="{Binding Title}" 
+                                                                 IsEditable="true"
+                                                                 Foreground="{DynamicResource ForegroundBrush}" FontWeight="Bold"
+                                                                 Margin="4,2,2,2"/>
+                                    </StackPanel>
+                                    <ItemsControl ItemsSource="{Binding Components}" 
+                                                  dd:DragDrop.IsDragSource="True" 
+                                                  dd:DragDrop.IsDropTarget="True"
+                                                  dd:DragDrop.DropHandler="{Binding}">
+
+                                        <!-- Spacing between execution components -->
+                                        <ItemsControl.ItemContainerStyle>
+                                            <Style>
+                                                <Setter Property="FrameworkElement.Margin" Value="3"/>
+                                            </Style>
+                                        </ItemsControl.ItemContainerStyle>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate DataType="{x:Type viewmodels:NodeComponentViewModel}">
+                                                <Border BorderBrush="White" BorderThickness="1"
+                                                        Tag="{Binding Path=DataContext, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type nodify:StateNode}}}"> <!-- Set the tag to current node -->
+                                                    <Border.ContextMenu>
+                                                        <ContextMenu>
+                                                            <!-- Reuse the tag (current node) -->
+                                                            <MenuItem Header="Remove"
+                                                                      Command="{Binding Path=PlacementTarget.Tag.ComponentDeleteCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
+                                                                      CommandParameter="{Binding}">
+                                                                <MenuItem.Icon>
+                                                                    <iconPacks:PackIconMaterial Kind="Delete"/>
+                                                                </MenuItem.Icon>
+                                                            </MenuItem>
+                                                        </ContextMenu>
+                                                    </Border.ContextMenu>
+                                                    <Border.InputBindings>
+                                                        <!-- Remap label click event as command -->
+                                                        <MouseBinding MouseAction="LeftClick" 
+                                                                      Command="{Binding DataContext.ComponentClickedCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type views:EditorView}}}"
+                                                                      CommandParameter="{Binding}"/>
+                                                    </Border.InputBindings>
+
+                                                    <!-- Setting to transparent is needed for the hit test to work everywhere (otherwise doesn't work on the gap) -->
+                                                    <Grid Cursor="Hand" Background="Transparent">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/> <!-- Text -->
+                                                            <ColumnDefinition Width="*"/> <!-- Filler -->
+                                                            <ColumnDefinition Width="26"/> <!-- Arrow -->
+                                                        </Grid.ColumnDefinitions>
+                                                        <Label Grid.Column="0" Foreground="White" Content="{Binding Name}"/>
+                                                        <Label Grid.Column="2" Width="26" Foreground="White" Content=">>"/>
+                                                    </Grid>
+
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </DataTemplate>
+                        </nodify:StateNode.ContentTemplate>
+
+                    </nodify:StateNode>
+                </DataTemplate>
+            </nodify:NodifyEditor.ItemTemplate>
+        </nodify:NodifyEditor>
+        <Grid Background="{StaticResource LargeGridLinesDrawingBrush}" Panel.ZIndex="-2" />
+    </Grid>
+</UserControl>

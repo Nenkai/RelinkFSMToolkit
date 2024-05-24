@@ -1,0 +1,69 @@
+﻿<Window x:Class="RelinkFSMToolkit.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:nodify="https://miroiu.github.io/nodify"
+        xmlns:local="clr-namespace:RelinkFSMToolkit"
+        xmlns:views="clr-namespace:RelinkFSMToolkit.Views"
+        xmlns:viewmodels="clr-namespace:RelinkFSMToolkit.ViewModels"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        Background="{DynamicResource NodifyEditor.BackgroundBrush}"
+        Foreground="{DynamicResource ForegroundBrush}"
+        mc:Ignorable="d"
+        WindowState="Maximized"
+        Title="Granblue Fantasy - Relink FSM Editor" Height="600" Width="1000">
+    <d:Window.DataContext>
+        <viewmodels:ApplicationViewModel />
+    </d:Window.DataContext>
+    <DockPanel>
+        <views:TopMenuView Height="20" DockPanel.Dock="Top" DataContext="{Binding TopMenuViewModel}"/>
+
+        <!-- Docking System -->
+        <DockingManager x:Name="dockManager"
+            AllowMixedOrientation="True"
+            AutoWindowSizeWhenOpened="True"
+            IsVirtualizingAnchorable="True"
+            IsVirtualizingDocument="True"
+            Theme="{Binding TopMenuViewModel.DockManagerTheme}">
+            <LayoutRoot>
+                <LayoutPanel Orientation="Horizontal">
+                    <LayoutAnchorablePaneGroup Orientation="Vertical" DockWidth="280">
+                        <LayoutAnchorablePane>
+                            <LayoutAnchorable Title="Toolbox"  x:Name="toolboxPanel" ContentId="toolboxPanel">
+                                <views:ToolboxView DataContext="{Binding ToolboxViewModel}"/>
+                            </LayoutAnchorable>
+                        </LayoutAnchorablePane>
+                        <LayoutAnchorablePane DockHeight="450">
+                            <LayoutAnchorable x:Name="TransitionPanel" Title="Transitions" ContentId="toolWindow1">
+                                
+                            </LayoutAnchorable>
+                        </LayoutAnchorablePane>
+                    </LayoutAnchorablePaneGroup>
+                    
+                    <LayoutDocumentPaneGroup Orientation="Horizontal">
+                        <LayoutDocumentPane>
+                            <LayoutDocument Title="Graph" CanClose="False">
+                                <views:EditorView DataContext="{Binding EditorViewModel}" />
+                            </LayoutDocument>
+                        </LayoutDocumentPane>
+                    </LayoutDocumentPaneGroup>
+
+                    <LayoutAnchorablePaneGroup Orientation="Vertical" DockWidth="300">
+                        <LayoutAnchorablePane>
+                            <LayoutAnchorable Title="Explorer" ContentId="toolWindow2">
+                                <views:ExplorerView DataContext="{Binding ExplorerViewModel}"/>
+                            </LayoutAnchorable>
+                        </LayoutAnchorablePane>
+                        <LayoutAnchorablePane>
+                            <LayoutAnchorable x:Name="PropertyGrid" Title="Properties" ContentId="toolWindow1">
+                                <views:PropertyGridView DataContext="{Binding PropertyGridViewModel}"/>
+                            </LayoutAnchorable>
+                        </LayoutAnchorablePane>
+                    </LayoutAnchorablePaneGroup>
+                </LayoutPanel>
+            </LayoutRoot>
+        </DockingManager>
+    </DockPanel>
+</Window>

@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RelinkFSMToolkit", "RelinkFSMToolkit\RelinkFSMToolkit.csproj", "{C13E3462-9822-488D-A72B-953E67B776AF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GBFRDataTools.FSM", "GBFRDataTools\GBFRDataTools.FSM\GBFRDataTools.FSM.csproj", "{759B9769-740A-42F2-A20F-38607AFB323E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GBFRDataTools.Entities", "GBFRDataTools\GBFRDataTools.Entities\GBFRDataTools.Entities.csproj", "{B01C7141-26EF-4629-841F-10718D3234CA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C13E3462-9822-488D-A72B-953E67B776AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C13E3462-9822-488D-A72B-953E67B776AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C13E3462-9822-488D-A72B-953E67B776AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C13E3462-9822-488D-A72B-953E67B776AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{759B9769-740A-42F2-A20F-38607AFB323E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{759B9769-740A-42F2-A20F-38607AFB323E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{759B9769-740A-42F2-A20F-38607AFB323E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{759B9769-740A-42F2-A20F-38607AFB323E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B01C7141-26EF-4629-841F-10718D3234CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B01C7141-26EF-4629-841F-10718D3234CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B01C7141-26EF-4629-841F-10718D3234CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B01C7141-26EF-4629-841F-10718D3234CA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {23A218ED-4C4B-4304-BC13-A1B77FB6D769}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,48 @@
+﻿<UserControl x:Class="RelinkFSMToolkit.Views.TopMenuView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:RelinkFSMToolkit.Views"
+             xmlns:viewmodels="clr-namespace:RelinkFSMToolkit.ViewModels"
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <d:UserControl.DataContext>
+        <viewmodels:TopMenuViewModel />
+    </d:UserControl.DataContext>
+    <UserControl.Resources>
+        <!-- Allow separators as viewmodel in menu
+        -> https://stackoverflow.com/questions/31214027/how-to-correctly-bind-a-viewmodel-which-include-separators-to-wpfs-menu -->
+        <local:MenuItemContainerTemplateSelector x:Key="_menuItemContainerTemplateSelector" />
+
+        <!-- Root menu item, no icon. -->
+        <HierarchicalDataTemplate DataType="{x:Type viewmodels:RootMenuItemViewModel}" ItemsSource="{Binding MenuItems}">
+            <MenuItem Header="{Binding Header}"  UsesItemContainerTemplate="true" ItemContainerTemplateSelector="{StaticResource _menuItemContainerTemplateSelector}"/>
+        </HierarchicalDataTemplate>
+
+        <!-- Actual menu item, with an icon. -->
+        <HierarchicalDataTemplate DataType="{x:Type viewmodels:MenuItemViewModel}" ItemsSource="{Binding MenuItems}">
+            <MenuItem UsesItemContainerTemplate="true" ItemContainerTemplateSelector="{StaticResource _menuItemContainerTemplateSelector}"
+                      Header="{Binding Header}" 
+                      IsChecked="{Binding Checked}"
+                      IsEnabled="{Binding Enabled}"
+                      Command="{Binding Command}"
+                      CommandParameter="{Binding Parameter}">
+                <MenuItem.Icon>
+                    <iconPacks:PackIconControl Kind="{Binding IconKind}" Foreground="{DynamicResource BackgroundBrush}" Width="16"/>
+                </MenuItem.Icon>
+            </MenuItem>
+        </HierarchicalDataTemplate>
+
+        <!-- Menu item separator. -->
+        <HierarchicalDataTemplate DataType="{x:Type viewmodels:MenuSeparatorViewModel}">
+            <Separator Width="Auto" Background="Gray" Margin="32,2,4,2"/>
+        </HierarchicalDataTemplate>
+    </UserControl.Resources>
+    <Menu Height="20" DockPanel.Dock="Top" ItemsSource="{Binding MenuItems}"
+      UsesItemContainerTemplate="True" 
+      ItemContainerTemplateSelector="{StaticResource _menuItemContainerTemplateSelector}" >
+    </Menu>
+</UserControl>
