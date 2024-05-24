@@ -1,0 +1,3 @@
+[submodule "GBFRDataTools"]
+	path = GBFRDataTools
+	url = https://github.com/Nenkai/GBFRDataTools.git
