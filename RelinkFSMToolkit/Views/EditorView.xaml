@@ -36,6 +36,15 @@
                     Viewport="0 0 100 100"
                     Transform="{Binding ViewportTransform, ElementName=Editor}"
                     Drawing="{StaticResource LargeGridGeometry}" />
+
+        <UIElement x:Key="ConnectionAnimationPlaceholder" Opacity="1" />
+        <Storyboard x:Key="HighlightConnection">
+            <DoubleAnimation Storyboard.TargetProperty="StrokeThickness" 
+                             Duration="0:0:0.1" From="4" To="7"  />
+            <DoubleAnimation Storyboard.Target="{StaticResource ConnectionAnimationPlaceholder}"
+                             Storyboard.TargetProperty="(UIElement.Opacity)" 
+                             Duration="0:0:0.1" From="1" To="0.3"  />
+        </Storyboard>
     </UserControl.Resources>
     <d:UserControl.DataContext>
         <viewmodels:EditorViewModel/>
@@ -45,30 +54,54 @@
     <Grid Background="{StaticResource NodifyEditor.BackgroundBrush}">
         <nodify:NodifyEditor x:Name="Editor"
                  ItemsSource="{Binding Nodes}" 
-                 Connections="{Binding Transitions}"
+                 Connections="{Binding Connections}"
                  Background="{StaticResource SmallGridLinesDrawingBrush}"
                  SelectedItem="{Binding SelectedNode}">
             <nodify:NodifyEditor.ItemContainerStyle>
                 <Style TargetType="{x:Type nodify:ItemContainer}" BasedOn="{StaticResource {x:Type nodify:ItemContainer}}">
                     <Setter Property="Location" Value="{Binding Location}" />
                     <Setter Property="ActualSize" Value="{Binding Size, Mode=OneWayToSource}" />
+                    <Setter Property="Tag" Value="{Binding}"/>
                 </Style>
             </nodify:NodifyEditor.ItemContainerStyle>
 
             <nodify:NodifyEditor.ConnectionTemplate>
-                <DataTemplate DataType="{x:Type viewmodels:TransitionViewModel}">
-                    <nodify:LineConnection Source="{Binding Source.Anchor}" 
+                <DataTemplate DataType="{x:Type viewmodels:ConnectionViewModel}">
+                    <nodify:LineConnection 
+                                   Source="{Binding Source.Anchor}" 
                                    Target="{Binding Target.Anchor}" 
                                    SourceOffset="{Binding Source.Size, Converter={StaticResource ConnectorOffsetConverter}, ConverterParameter=20}"
                                    TargetOffset="{Binding Target.Size, Converter={StaticResource ConnectorOffsetConverter}, ConverterParameter=20}"
-                                   StrokeDashArray="{Binding StrokeDashArray}"
                                    ArrowSize="20,20"
                                    Spacing="0" 
-                                   MouseDown="LineConnection_MouseDown"
                                    Text="{Binding Title}" 
                                    FontWeight="Bold"
+                                   ArrowEnds="{Binding ArrowHeadEnds}"
                                    SourceOffsetMode="Edge"
                                    TargetOffsetMode="Edge">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseDown">
+                                <i:InvokeCommandAction Command="{Binding Path=DataContext.ConnectionClickedCommand, RelativeSource={RelativeSource AncestorType=views:EditorView}}" CommandParameter="{Binding}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                        <nodify:LineConnection.Style>
+                            <Style TargetType="{x:Type nodify:LineConnection}"
+                                   BasedOn="{StaticResource {x:Type nodify:LineConnection}}">
+                                <Setter Property="StrokeThickness" Value="4" />
+                                <Style.Triggers>
+                                    <!-- Animate stroke thickness when mouse over -->
+                                    <Trigger Property="IsMouseDirectlyOver" Value="True">
+                                        <Trigger.EnterActions>
+                                            <BeginStoryboard Name="HighlightConnection" Storyboard="{StaticResource HighlightConnection}" />
+                                        </Trigger.EnterActions>
+                                        <Trigger.ExitActions>
+                                            <RemoveStoryboard BeginStoryboardName="HighlightConnection" />
+                                        </Trigger.ExitActions>
+                                        <Setter Property="Opacity" Value="1" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </nodify:LineConnection.Style>
                     </nodify:LineConnection>
                 </DataTemplate>
             </nodify:NodifyEditor.ConnectionTemplate>
@@ -152,7 +185,6 @@
                                 </StackPanel>
                             </DataTemplate>
                         </nodify:StateNode.ContentTemplate>
-
                     </nodify:StateNode>
                 </DataTemplate>
             </nodify:NodifyEditor.ItemTemplate>

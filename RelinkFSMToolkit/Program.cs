@@ -13,8 +13,10 @@ builder.Services
     .AddSingleton<PropertyGridViewModel>()
     .AddSingleton<ExplorerViewModel>()
     .AddSingleton<ToolboxViewModel>()
-    .AddSingleton<TopMenuViewModel>();
+    .AddSingleton<TopMenuViewModel>()
+    .AddSingleton<ConnectionEditorViewModel>()
     // Future services goes here
+    ;
 
 // Run.
 var app = builder.Build();

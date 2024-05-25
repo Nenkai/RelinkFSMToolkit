@@ -35,7 +35,7 @@ public partial class EditorViewModel : ObservableObject
     public object _selectedNode;
 
     public ObservableCollection<NodeViewModel> Nodes { get; } = [];
-    public ObservableCollection<TransitionViewModel> Transitions { get; } = [];
+    public ObservableCollection<ConnectionViewModel> Connections { get; } = [];
 
     public delegate void NodesLoadedDelegate();
     public event NodesLoadedDelegate OnNodesLoaded;
@@ -60,6 +60,12 @@ public partial class EditorViewModel : ObservableObject
     }
 
     [RelayCommand]
+    public void OnConnectionClicked(object param)
+    {
+        ;
+    }
+
+    [RelayCommand]
     public void OnComponentClicked(object param)
     {
         _propGridViewModel.SelectedObject = (param as NodeComponentViewModel).Component;
@@ -78,7 +84,7 @@ public partial class EditorViewModel : ObservableObject
     {
         _processedNodes.Clear();
         Nodes.Clear();
-        Transitions.Clear();
+        Connections.Clear();
 
         int depth = 0;
 
@@ -132,67 +138,43 @@ public partial class EditorViewModel : ObservableObject
                 CreateViewModelFromFSMNode(toFsmNode, nodeList, ref depth_);
             }
 
-
-            var transitionViewModel = new TransitionViewModel()
+            ConnectionViewModel connection = Connections.FirstOrDefault(e => (e.Source == graphNode || e.Source == toNode) &&
+                                                                             (e.Target == graphNode || e.Target == toNode));
+            TransitionViewModel transition = new TransitionViewModel()
             {
                 Source = graphNode,
                 Target = toNode,
             };
 
-            if (trans.ConditionComponents.Count != 0)
+            if (connection is null)
             {
-                transitionViewModel.Title = $"{trans.ConditionComponents.Count} condition(s)";
-
-                for (int j = 0; j < trans.ConditionComponents.Count; j++)
-                    transitionViewModel.ConditionComponents.Add(trans.ConditionComponents[j]);
-            }
-
-            Transitions.Add(transitionViewModel);
-
-            /*
-
-            if (n is null)
-            {
-                edge.Attr.AddStyle(Microsoft.Msagl.Drawing.Style.Diagonals);
-            }
-            else if (!processedGuids.Contains(n.Guid))
-            {
-                processedGuids.Add(n.Guid);
-                ProcessNode(graph, n, nodeList);
+                connection = new ConnectionViewModel()
+                {
+                    Source = graphNode,
+                    Target = toNode,
+                };
+                Connections.Add(connection);
             }
             else
             {
-                Debug.WriteLine(n is not null, $"Failed {node.Guid} to {trans.FromNodeGuid}");
+                connection.ArrowHeadEnds = ArrowHeadEnds.Both;
             }
-            */
+
+            connection.Transitions.Add(transition);
+
+            if (trans.ConditionComponents.Count != 0)
+            {
+                connection.Title = $"{trans.ConditionComponents.Count} condition(s)";
+
+                for (int j = 0; j < trans.ConditionComponents.Count; j++)
+                    transition.ConditionComponents.Add(trans.ConditionComponents[j]);
+            }
         }
 
         for (int i = 0; i < node.LeafTransitions.Count; i++)
         {
 
         }
-        /*
-        foreach (var trans in node.LeafTransitions)
-        {
-            Edge edge = graph.AddEdge(node.Guid.ToString(), trans.FromNodeGuid.ToString());
-
-            if (trans.ConditionComponents.Count != 0)
-            {
-                edge.Attr.Color = Microsoft.Msagl.Drawing.Color.Green;
-                edge.Attr.AddStyle(Microsoft.Msagl.Drawing.Style.Dotted);
-
-                foreach (var cond in trans.ConditionComponents)
-                    edge.LabelText += $"{cond}\n";
-            }
-
-            var n = node.Children.FirstOrDefault(e => e.Guid == trans.FromNodeGuid);
-            if (!processedGuids.Contains(n.Guid))
-            {
-                processedGuids.Add(n.Guid);
-                ProcessNode(graph, n, nodeList);
-            }
-        }
-        */
 
         // When childLayerId_ is set, grab the first of the children
         if (node.ChildLayerId != -1 && node.Children.Count > 0)
@@ -240,38 +222,41 @@ public partial class EditorViewModel : ObservableObject
     {
         Dictionary<int, FSMNode> fsmNodes = [];
 
-        foreach (var transition in Transitions)
+        foreach (ConnectionViewModel connection in Connections)
         {
-            if (!fsmNodes.TryGetValue(transition.Source.Guid, out FSMNode sourceFsmNode))
+            foreach (TransitionViewModel transition in connection.Transitions)
             {
-                sourceFsmNode = new FSMNode();
-                sourceFsmNode.Guid = transition.Source.Guid;
+                if (!fsmNodes.TryGetValue(connection.Source.Guid, out FSMNode sourceFsmNode))
+                {
+                    sourceFsmNode = new FSMNode();
+                    sourceFsmNode.Guid = connection.Source.Guid;
 
-                Transition fsmTransition = new Transition(transition.Source.Guid, transition.Target.Guid);
-                foreach (BehaviorTreeComponent conditionComponent in transition.ConditionComponents)
-                    fsmTransition.ConditionComponents.Add(conditionComponent);
+                    Transition fsmTransition = new Transition(transition.Source.Guid, connection.Target.Guid);
+                    foreach (BehaviorTreeComponent conditionComponent in transition.ConditionComponents)
+                        fsmTransition.ConditionComponents.Add(conditionComponent);
 
-                foreach (NodeComponentViewModel componentViewModel in transition.Source.Components)
-                    sourceFsmNode.ExecutionComponents.Add(componentViewModel.Component);
+                    foreach (NodeComponentViewModel componentViewModel in connection.Source.Components)
+                        sourceFsmNode.ExecutionComponents.Add(componentViewModel.Component);
 
-                sourceFsmNode.BranchTransitions.Add(fsmTransition);
+                    sourceFsmNode.BranchTransitions.Add(fsmTransition);
 
-                fsmNodes.Add(sourceFsmNode.Guid, sourceFsmNode);
+                    fsmNodes.Add(sourceFsmNode.Guid, sourceFsmNode);
+                }
+
+                if (!fsmNodes.TryGetValue(connection.Target.Guid, out FSMNode targetFsmNode))
+                {
+                    targetFsmNode = new FSMNode();
+                    targetFsmNode.Guid = connection.Target.Guid;
+
+                    foreach (NodeComponentViewModel componentViewModel in connection.Target.Components)
+                        targetFsmNode.ExecutionComponents.Add(componentViewModel.Component);
+
+                    fsmNodes.Add(targetFsmNode.Guid, targetFsmNode);
+                }
+
+                if (sourceFsmNode.Children.Find(e => e.Guid == targetFsmNode.Guid) is null)
+                    sourceFsmNode.Children.Add(targetFsmNode);
             }
-
-            if (!fsmNodes.TryGetValue(transition.Target.Guid, out FSMNode targetFsmNode))
-            {
-                targetFsmNode = new FSMNode();
-                targetFsmNode.Guid = transition.Target.Guid;
-
-                foreach (NodeComponentViewModel componentViewModel in transition.Target.Components)
-                    targetFsmNode.ExecutionComponents.Add(componentViewModel.Component);
-
-                fsmNodes.Add(targetFsmNode.Guid, targetFsmNode);
-            }
-
-            if (sourceFsmNode.Children.Find(e => e.Guid == targetFsmNode.Guid) is null)
-                sourceFsmNode.Children.Add(targetFsmNode);
         }
 
         var root = fsmNodes[FSM.RootNode.Guid];

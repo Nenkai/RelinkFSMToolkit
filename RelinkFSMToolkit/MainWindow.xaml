@@ -37,7 +37,7 @@
                         </LayoutAnchorablePane>
                         <LayoutAnchorablePane DockHeight="450">
                             <LayoutAnchorable x:Name="TransitionPanel" Title="Transitions" ContentId="toolWindow1">
-                                
+                                <views:ConnectionEditorView DataContext="{Binding ConnectionEditorViewModel}"/>
                             </LayoutAnchorable>
                         </LayoutAnchorablePane>
                     </LayoutAnchorablePaneGroup>

@@ -14,6 +14,7 @@
     <None Remove="Themes\Dark.xaml" />
     <None Remove="Themes\Generic.xaml" />
     <None Remove="Themes\Light.xaml" />
+    <None Remove="Views\ConnectionEditorView.xaml" />
     <None Remove="views\PropertyGrid.xaml" />
     <None Remove="Views\ToolboxView.xaml" />
     <None Remove="Views\TopMenuView.xaml" />
@@ -25,7 +26,6 @@
     <PackageReference Include="Dirkster.AvalonDock.Themes.VS2013" Version="4.72.1" />
     <PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="5.0.115" />
     <PackageReference Include="gong-wpf-dragdrop" Version="3.2.1" />
-    <PackageReference Include="HandyControl" Version="3.5.1" />
     <PackageReference Include="MahApps.Metro.IconPacks" Version="4.11.0" />
     <PackageReference Include="MessagePack" Version="2.5.140" />
     <PackageReference Include="Microsoft.Msagl" Version="1.1.6" />

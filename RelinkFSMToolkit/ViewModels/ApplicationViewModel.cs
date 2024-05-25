@@ -28,6 +28,7 @@ public partial class ApplicationViewModel : ObservableObject
     public PropertyGridViewModel PropertyGridViewModel { get; set; }
     public ToolboxViewModel ToolboxViewModel { get; set; }
     public TopMenuViewModel TopMenuViewModel { get; set; }
+    public ConnectionEditorViewModel ConnectionEditorViewModel { get; set; }
 
     public ApplicationViewModel() { }
 
@@ -35,13 +36,15 @@ public partial class ApplicationViewModel : ObservableObject
         ExplorerViewModel explorerViewModel, 
         PropertyGridViewModel propertyGridViewModel, 
         ToolboxViewModel toolboxViewModel,
-        TopMenuViewModel topMenuViewModel)
+        TopMenuViewModel topMenuViewModel,
+        ConnectionEditorViewModel connectionEditorViewModel)
     {
         EditorViewModel = editorViewModel;
         ExplorerViewModel = explorerViewModel;
         PropertyGridViewModel = propertyGridViewModel;
         ToolboxViewModel = toolboxViewModel;
         TopMenuViewModel = topMenuViewModel;
+        ConnectionEditorViewModel = connectionEditorViewModel;
 
         WeakReferenceMessenger.Default.Register<FileOpenRequestMessage>(this, (recipient, message) =>
         {

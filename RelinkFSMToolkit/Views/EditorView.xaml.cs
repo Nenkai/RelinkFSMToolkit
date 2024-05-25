@@ -67,22 +67,25 @@ public partial class EditorView : UserControl
             graph.Nodes.Add(new Microsoft.Msagl.Core.Layout.Node(Utils.CreateCurve(nodeViewModel.Size.Width, nodeViewModel.Size.Height), nodeViewModel));
         }
 
-        foreach (TransitionViewModel connection in Editor.Connections)
+        foreach (ConnectionViewModel connection in Editor.Connections)
         {
-            graph.Edges.Add(new Edge(graph.FindNodeByUserData(connection.Source), graph.FindNodeByUserData(connection.Target), 100, 100, 5));
+            Edge edge = new Edge(graph.FindNodeByUserData(connection.Source), graph.FindNodeByUserData(connection.Target), 100, 100, 5);
+            graph.Edges.Add(edge);
         }
 
         var settings = new SugiyamaLayoutSettings
         {
             Transformation = PlaneTransformation.Rotation(Math.PI / 2), // Make LR (Left-To-Right)
-            EdgeRoutingSettings = { EdgeRoutingMode = EdgeRoutingMode.StraightLine },
+            EdgeRoutingSettings = { EdgeRoutingMode = EdgeRoutingMode.Spline },
         };
 
         var layout = new LayeredLayout(graph, settings);
         layout.Run();
 
         foreach (var graphNode in graph.Nodes)
+        {
             (graphNode.UserData as NodeViewModel).Location = new Point(graphNode.Center.X, graphNode.Center.Y);
+        }
 
         var firstNode = graph.Nodes.First().UserData as NodeViewModel;
         Editor.BringIntoView(firstNode.Location, animated: false);
